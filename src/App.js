@@ -10,24 +10,25 @@ import Notifications from "./Pages/Notifications";
 import About from "./Pages/About";
 
 const App = () => {
+  // State for favorites, recently viewed books, notifications, and the currently viewed book
   const [favorites, setFavorites] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [viewedBook, setViewedBook] = useState(null);
 
-  // Add to favorites
+  // Add a book to favorites
   const addToFavorites = (book) => {
     if (!favorites.some((fav) => fav.id === book.id)) {
       setFavorites([...favorites, book]);
     }
   };
 
-  // Remove from favorites
+  // Remove a book from favorites
   const removeFromFavorites = (id) => {
     setFavorites(favorites.filter((book) => book.id !== id));
   };
 
-  // View book
+  // View or unview a book
   const viewBook = (book) => {
     setViewedBook(viewedBook?.id === book.id ? null : book);
     if (!recentlyViewed.some((item) => item.id === book.id)) {
@@ -38,9 +39,31 @@ const App = () => {
     }
   };
 
+  // Mark notifications as read
+  const markAsRead = (id) => {
+    setNotifications(
+      notifications.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification
+      )
+    );
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = () => {
+    setNotifications(
+      notifications.map((notification) => ({
+        ...notification,
+        read: true,
+      }))
+    );
+  };
+
   return (
     <div className="flex">
+      {/* Sidebar Navigation */}
       <Sidebar />
+
+      {/* Main Content */}
       <div className="flex-grow ml-16 md:ml-60 transition-all duration-300 p-4 bg-gray-100">
         <Routes>
           <Route
@@ -75,23 +98,8 @@ const App = () => {
             element={
               <Notifications
                 notifications={notifications}
-                markAsRead={(id) =>
-                  setNotifications(
-                    notifications.map((notification) =>
-                      notification.id === id
-                        ? { ...notification, read: true }
-                        : notification
-                    )
-                  )
-                }
-                markAllAsRead={() =>
-                  setNotifications(
-                    notifications.map((notification) => ({
-                      ...notification,
-                      read: true,
-                    }))
-                  )
-                }
+                markAsRead={markAsRead}
+                markAllAsRead={markAllAsRead}
               />
             }
           />

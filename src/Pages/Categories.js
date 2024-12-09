@@ -6,18 +6,21 @@ const Categories = ({ addToFavorites, viewBook, viewedBook }) => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState(null);
 
+  // Base API URL (use environment variable for deployment)
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
   useEffect(() => {
     axios
-      .get("http://localhost:5000/books")
+      .get(`${API_URL}/books`)
       .then((response) => setBooks(response.data))
       .catch((error) => {
         console.error("Error fetching books:", error);
-        setError("Failed to load books.");
+        setError("Failed to load books. Please try again later.");
       });
-  }, []);
+  }, [API_URL]);
 
   if (error) {
-    return <div className="text-red-500">{error}</div>;
+    return <div className="text-red-500 text-center mt-4">{error}</div>;
   }
 
   return (
