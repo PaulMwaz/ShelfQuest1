@@ -10,6 +10,9 @@ import Notifications from "./Pages/Notifications";
 import About from "./Pages/About";
 
 const App = () => {
+  // State for sidebar visibility
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   // State for favorites, recently viewed books, notifications, and the currently viewed book
   const [favorites, setFavorites] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
@@ -61,10 +64,14 @@ const App = () => {
   return (
     <div className="flex">
       {/* Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar onToggleSidebar={(isOpen) => setIsSidebarOpen(isOpen)} />
 
       {/* Main Content */}
-      <div className="flex-grow ml-16 md:ml-60 transition-all duration-300 p-4 bg-gray-100">
+      <div
+        className={`flex-grow ${
+          isSidebarOpen ? "ml-16 md:ml-60" : "ml-16"
+        } transition-all duration-300 p-4 bg-gray-100`}
+      >
         <Routes>
           <Route
             path="/categories"
