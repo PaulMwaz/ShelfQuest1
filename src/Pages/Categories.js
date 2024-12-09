@@ -5,19 +5,37 @@ import BookCard from "../Components/BookCard";
 const Categories = ({ addToFavorites, viewBook, viewedBook }) => {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Base API URL (use environment variable for deployment)
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  // Gutenberg Books API Base URL
+  const GUTENBERG_API_URL = "https://gutendex.com/books";
 
   useEffect(() => {
+    setLoading(true);
+    // Fetch all books from the Gutenberg API
     axios
-      .get(`${API_URL}/books`)
-      .then((response) => setBooks(response.data))
+      .get(`${GUTENBERG_API_URL}`) // Fetch all types of books
+      .then((response) => {
+        // Map API response to book objects
+        const booksData = response.data.results.map((item) => ({
+          id: item.id, // Unique ID from Gutenberg API
+          title: item.title,
+          author: item.authors?.[0]?.name || "Unknown Author",
+          image: item.formats["image/jpeg"] || "/placeholder.png", // Use image if available
+          category: item.bookshelves?.[0] || "General", // Use bookshelves or a fallback
+        }));
+        setBooks(booksData);
+      })
       .catch((error) => {
         console.error("Error fetching books:", error);
         setError("Failed to load books. Please try again later.");
-      });
-  }, [API_URL]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="text-center mt-4">Loading books...</div>;
+  }
 
   if (error) {
     return <div className="text-red-500 text-center mt-4">{error}</div>;
