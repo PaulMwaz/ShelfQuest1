@@ -11,13 +11,8 @@ import {
 } from "react-icons/fa";
 import { HiMenuAlt3 } from "react-icons/hi";
 
-const Sidebar = ({ onToggleSidebar }) => {
+const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-    if (onToggleSidebar) onToggleSidebar(!isOpen); // Notify parent component when sidebar is toggled
-  };
 
   const menuItems = [
     { name: "Home", path: "/", icon: <FaHome /> },
@@ -35,7 +30,7 @@ const Sidebar = ({ onToggleSidebar }) => {
       <div
         className={`bg-gray-800 text-white h-screen ${
           isOpen ? "w-60" : "w-16"
-        } fixed transition-all duration-300 z-50`}
+        } fixed transition-all duration-300`}
       >
         {/* Logo and Hamburger Menu */}
         <div className="flex items-center justify-between p-4">
@@ -50,7 +45,7 @@ const Sidebar = ({ onToggleSidebar }) => {
             )}
           </div>
           <button
-            onClick={toggleSidebar}
+            onClick={() => setIsOpen(!isOpen)}
             className="text-white text-2xl focus:outline-none"
           >
             <HiMenuAlt3 />
@@ -63,7 +58,6 @@ const Sidebar = ({ onToggleSidebar }) => {
             <li key={index}>
               <NavLink
                 to={item.path}
-                onClick={() => setIsOpen(false)} // Auto-close sidebar on navigation
                 className={({ isActive }) =>
                   `flex items-center gap-4 px-4 py-2 rounded ${
                     isActive ? "bg-purple-600" : "hover:bg-purple-400"

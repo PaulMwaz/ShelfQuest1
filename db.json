@@ -1,0 +1,78 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "Mia & Christmas Snow",
+      "category": "Children's Books",
+      "image": "./images/Childrens1.jpg"
+    },
+    {
+      "id": 2,
+      "title": "Fluffy Henri",
+      "category": "Children's Books",
+      "image": "./images/Childrens2.jpg"
+    },
+    {
+      "id": 3,
+      "title": "See You later,Alligator",
+      "category": "Children's Books",
+      "image": "./images/Childrens3.jpg"
+    },
+
+    {
+      "id": 6,
+      "title": "The Far Journey",
+      "category": "Fiction",
+      "image": "./images/Fiction1.jpg"
+    },
+    {
+      "id": 7,
+      "title": "In Too Deep",
+      "category": "Fiction",
+      "image": "./images/Fiction2.jpg"
+    },
+    {
+      "id": 8,
+      "title": "The Grey Wolf",
+      "category": "Fiction",
+      "image": "./images/Fiction3.jpg"
+    },
+    {
+      "id": 9,
+      "title": "The Waiting",
+      "category": "Fiction",
+      "image": "./images/Fiction4.jpg"
+    },
+    {
+      "id": 10,
+      "title": "The Templar Chronicles",
+      "category": "Fiction",
+      "image": "./images/Fiction5.jpg"
+    },
+    {
+      "id": 11,
+      "title": "Elon Mask",
+      "category": "Non-Fiction",
+      "image": "./images/Non-Fiction11.jpg"
+    },
+
+    {
+      "id": 12,
+      "title": "The Psychology of Money",
+      "category": "Non-Fiction",
+      "image": "./images/Non-Fiction10.jpg"
+    },
+    {
+      "id": 13,
+      "title": "The Software Engineers Guide Book",
+      "category": "Academic",
+      "image": "./images/Academic5.jpg"
+    },
+    {
+      "id": 14,
+      "title": "Quantum Physics",
+      "category": "Academic",
+      "image": "./images/Academic8.jpg"
+    }
+  ]
+}

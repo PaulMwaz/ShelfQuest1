@@ -1,88 +1,177 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import BookCard from "../Components/BookCard";
+import BookCard from "../Components/BookCard"; // BookCard is in the Components folder
+import RecentlyViewed from "./RecentlyViewed"; // RecentlyViewed is in the same folder
 
-const Categories = ({ addToFavorites, viewBook, viewedBook }) => {
+const Categories = ({ addToFavorites }) => {
   const [books, setBooks] = useState([]);
+  const [viewedBook, setViewedBook] = useState(null);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // State for loading
+  const [searchTerm, setSearchTerm] = useState("fiction");
 
-  // Gutenberg Books API Base URL
-  const GUTENBERG_API_URL = "https://gutendex.com/books";
+  const API_KEY = "AIzaSyDwrRX4bm4taVml4jbsvHGrZQEy3El2olE";
+
+  // Fetch books from Google Books API
+  const fetchBooks = async (query) => {
+    try {
+      setLoading(true); // Set loading to true before fetching
+      let allBooks = [];
+      let startIndex = 0;
+      const maxResults = 40;
+      let hasMoreBooks = true;
+
+      while (hasMoreBooks) {
+        const response = await axios.get(
+          `https://www.googleapis.com/books/v1/volumes?q=subject:${query}&startIndex=${startIndex}&maxResults=${maxResults}&key=${API_KEY}`
+        );
+
+        const fetchedBooks = response.data.items?.map((item) => ({
+          id: item.id,
+          title: item.volumeInfo.title,
+          category: item.volumeInfo.categories?.[0] || query,
+          description:
+            item.volumeInfo.description || "No description available.",
+          image:
+            item.volumeInfo.imageLinks?.thumbnail ||
+            "https://via.placeholder.com/150",
+        }));
+
+        if (fetchedBooks?.length) {
+          allBooks = [...allBooks, ...fetchedBooks];
+          startIndex += maxResults;
+        } else {
+          hasMoreBooks = false;
+        }
+      }
+
+      setBooks(allBooks);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching books from Google Books API:", error);
+      setError("Failed to load books. Please try again.");
+    } finally {
+      setLoading(false); // Set loading to false after fetching
+    }
+  };
 
   useEffect(() => {
-    setLoading(true);
-    // Fetch all books from the Gutenberg API
-    axios
-      .get(`${GUTENBERG_API_URL}`) // Fetch all types of books
-      .then((response) => {
-        // Map API response to book objects
-        const booksData = response.data.results.map((item) => ({
-          id: item.id, // Unique ID from Gutenberg API
-          title: item.title,
-          author: item.authors?.[0]?.name || "Unknown Author",
-          image: item.formats["image/jpeg"] || "/placeholder.png", // Use image if available
-          category: item.bookshelves?.[0] || "General", // Use bookshelves or a fallback
-        }));
-        setBooks(booksData);
-      })
-      .catch((error) => {
-        console.error("Error fetching books:", error);
-        setError("Failed to load books. Please try again later.");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    fetchBooks(searchTerm);
+  }, [searchTerm]);
 
-  if (loading) {
-    return <div className="text-center mt-4">Loading books...</div>;
-  }
+  // Handle search
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const query = event.target.elements.search.value.trim();
+    if (query) {
+      setSearchTerm(query);
+    }
+  };
+
+  // Toggle viewed book
+  const toggleViewBook = (book) => {
+    if (viewedBook && viewedBook.id === book.id) {
+      setViewedBook(null);
+    } else {
+      setViewedBook(book);
+
+      // Add to recently viewed if not already present
+      if (!recentlyViewed.some((viewed) => viewed.id === book.id)) {
+        setRecentlyViewed((prev) => [book, ...prev]);
+      }
+    }
+  };
+
+  // Close a book from recently viewed
+  const closeRecentlyViewedBook = (bookId) => {
+    setRecentlyViewed((prev) => prev.filter((book) => book.id !== bookId));
+  };
+
+  // Close the current viewed book
+  const closeViewedBook = () => {
+    setViewedBook(null);
+  };
 
   if (error) {
-    return <div className="text-red-500 text-center mt-4">{error}</div>;
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
-    <div className="flex">
-      {/* Books in the center */}
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 ${
-          viewedBook ? "flex-grow md:w-2/3" : "w-full"
-        }`}
+    <div className="flex flex-col items-center px-4 md:px-8 lg:px-16">
+      {/* Search Bar */}
+      <form
+        onSubmit={handleSearch}
+        className="w-full max-w-3xl mb-6 flex items-center"
       >
-        {books.map((book) => (
-          <BookCard
-            key={book.id}
-            book={book}
-            onFavorite={() => addToFavorites(book)}
-            onView={() => viewBook(book)}
-            isViewing={viewedBook?.id === book.id}
-          />
-        ))}
+        <input
+          type="text"
+          name="search"
+          placeholder="Search for books (e.g., fiction, children, Christian)..."
+          className="flex-grow p-2 border rounded-l-md text-sm md:text-base"
+        />
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-500 text-white text-sm md:text-base rounded-r-md"
+        >
+          Search
+        </button>
+      </form>
+
+      {/* Loading Message */}
+      {loading && <div className="text-blue-500 mb-6">Loading books...</div>}
+
+      {/* Books List */}
+      <div className="flex w-full">
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ${
+            viewedBook ? "flex-grow md:w-2/3" : "w-full"
+          }`}
+        >
+          {books.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              onFavorite={() => addToFavorites(book)}
+              onView={() => toggleViewBook(book)}
+              isViewing={viewedBook?.id === book.id}
+              viewText={viewedBook?.id === book.id ? "Close" : "View"}
+            />
+          ))}
+        </div>
+
+        {/* Viewed Book on the right */}
+        {viewedBook && (
+          <div className="w-full md:w-1/3 p-4 bg-white shadow-md h-screen overflow-y-auto fixed right-0">
+            <button
+              onClick={closeViewedBook}
+              className="absolute top-2 right-2 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-full p-2"
+              title="Close"
+            >
+              ✕
+            </button>
+            <h1 className="text-2xl font-bold mb-4">{viewedBook.title}</h1>
+            <img
+              src={viewedBook.image}
+              alt={viewedBook.title}
+              className="w-full h-64 object-cover mb-4"
+            />
+            <p className="text-gray-600 mb-4">
+              Category: {viewedBook.category}
+            </p>
+            <p className="text-gray-700 mb-4">{viewedBook.description}</p>
+          </div>
+        )}
       </div>
 
-      {/* Viewed Book on the right */}
-      {viewedBook && (
-        <div className="w-full md:w-1/3 p-4 bg-white shadow-md h-screen overflow-y-auto fixed right-0">
-          <h1 className="text-2xl font-bold mb-4">{viewedBook.title}</h1>
-          <img
-            src={viewedBook.image}
-            alt={viewedBook.title}
-            className="w-full h-64 object-cover mb-4"
-          />
-          <p className="text-gray-600 mb-4">{viewedBook.category}</p>
-          <p className="text-gray-700">
-            This book is a captivating blend of adventure, knowledge, or
-            creativity, tailored to engage readers of all backgrounds. It dives
-            into key themes or topics, offering unique perspectives, practical
-            insights, or thrilling narratives. Perfect for those interested in
-            specific genres or subjects, it delivers a rewarding experience
-            through rich storytelling, detailed analysis, or actionable advice.
-            Whether you’re looking to learn, escape, or be inspired, this title
-            has something special to offer. Embark on a journey that will leave
-            you with new ideas, unforgettable moments, or valuable skills.
-          </p>
-        </div>
-      )}
+      {/* Recently Viewed */}
+      <div className="mt-8 w-full">
+        <RecentlyViewed
+          recentlyViewed={recentlyViewed}
+          onClose={closeRecentlyViewedBook}
+          hideMessage={true} // Suppress the message
+        />
+      </div>
     </div>
   );
 };

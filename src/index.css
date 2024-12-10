@@ -44,29 +44,3 @@
   height: 100%;
   object-fit: cover;
 }
-
-/* Responsive adjustments */
-@layer components {
-  /* Ensure the slider container is responsive */
-  .slider-container {
-    @apply w-full h-auto;
-  }
-
-  /* Adjust slide dimensions for smaller screens */
-  @media (max-width: 768px) {
-    .slide img {
-      object-fit: contain; /* Adjust to ensure the image fits smaller screens */
-    }
-
-    .animate-slide {
-      width: 100%; /* Prevent overflow on small screens */
-    }
-  }
-
-  /* Fine-tune for larger screens (laptops/desktops) */
-  @media (min-width: 1024px) {
-    .slide img {
-      object-fit: cover; /* Full cover for larger screens */
-    }
-  }
-}

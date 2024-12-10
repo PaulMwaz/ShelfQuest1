@@ -10,42 +10,48 @@ import Notifications from "./Pages/Notifications";
 import About from "./Pages/About";
 
 const App = () => {
-  // State for sidebar visibility
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // State for favorites, recently viewed books, notifications, and the currently viewed book
   const [favorites, setFavorites] = useState([]);
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [viewedBook, setViewedBook] = useState(null);
 
-  // Add a book to favorites
+  // Add to favorites
   const addToFavorites = (book) => {
     if (!favorites.some((fav) => fav.id === book.id)) {
       setFavorites([...favorites, book]);
     }
   };
 
-  // Remove a book from favorites
+  // Remove from favorites
   const removeFromFavorites = (id) => {
     setFavorites(favorites.filter((book) => book.id !== id));
   };
 
-  // View or unview a book
-  const viewBook = (book) => {
-    setViewedBook(viewedBook?.id === book.id ? null : book);
-    if (!recentlyViewed.some((item) => item.id === book.id)) {
-      setRecentlyViewed([book, ...recentlyViewed]);
-    }
-    if (!notifications.some((notification) => notification.id === book.id)) {
-      setNotifications([...notifications, { ...book, read: false }]);
+  // Add to recently viewed
+  const addToRecentlyViewed = (book) => {
+    if (!recentlyViewed.some((viewed) => viewed.id === book.id)) {
+      setRecentlyViewed((prev) => [book, ...prev]);
     }
   };
 
-  // Mark notifications as read
+  // Remove from recently viewed
+  const removeFromRecentlyViewed = (id) => {
+    setRecentlyViewed(recentlyViewed.filter((book) => book.id !== id));
+  };
+
+  // Add notification
+  const addNotification = (book) => {
+    if (!notifications.some((notification) => notification.id === book.id)) {
+      setNotifications((prev) => [
+        ...prev,
+        { ...book, read: false }, // Add a read property
+      ]);
+    }
+  };
+
+  // Mark a single notification as read
   const markAsRead = (id) => {
-    setNotifications(
-      notifications.map((notification) =>
+    setNotifications((prev) =>
+      prev.map((notification) =>
         notification.id === id ? { ...notification, read: true } : notification
       )
     );
@@ -53,33 +59,24 @@ const App = () => {
 
   // Mark all notifications as read
   const markAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        read: true,
-      }))
+    setNotifications((prev) =>
+      prev.map((notification) => ({ ...notification, read: true }))
     );
   };
 
   return (
     <div className="flex">
-      {/* Sidebar Navigation */}
-      <Sidebar onToggleSidebar={(isOpen) => setIsSidebarOpen(isOpen)} />
-
-      {/* Main Content */}
-      <div
-        className={`flex-grow ${
-          isSidebarOpen ? "ml-16 md:ml-60" : "ml-16"
-        } transition-all duration-300 p-4 bg-gray-100`}
-      >
+      <Sidebar />
+      <div className="flex-grow ml-16 md:ml-60 transition-all duration-300 p-4 bg-gray-100">
         <Routes>
           <Route
             path="/categories"
             element={
               <Categories
                 addToFavorites={addToFavorites}
-                viewBook={viewBook}
-                viewedBook={viewedBook}
+                addToRecentlyViewed={addToRecentlyViewed}
+                recentlyViewed={recentlyViewed}
+                addNotification={addNotification}
               />
             }
           />
@@ -98,7 +95,12 @@ const App = () => {
           />
           <Route
             path="/recently-viewed"
-            element={<RecentlyViewed recentlyViewed={recentlyViewed} />}
+            element={
+              <RecentlyViewed
+                recentlyViewed={recentlyViewed}
+                removeFromRecentlyViewed={removeFromRecentlyViewed}
+              />
+            }
           />
           <Route
             path="/notifications"
