@@ -36,8 +36,8 @@ const Sidebar = () => {
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center">
             <img
-              src="/images/logo.png" // Replace with the actual path to your logo
-              alt="BSL"
+              src={process.env.PUBLIC_URL + "/images/Logo.png"} // Adjusted to load correctly from public folder
+              alt="ShelfQuest Logo"
               className={`w-8 h-8 mr-2 ${!isOpen && "hidden"}`}
             />
             {isOpen && (
